@@ -13,6 +13,7 @@ import pathlib
 import re
 import shutil
 import sys
+from urllib.parse import quote
 
 OUT = pathlib.Path(__file__).resolve().parent
 SRC = pathlib.Path(os.environ.get("SRC_HOME", "~/OPC！/书签工具")).expanduser()
@@ -149,6 +150,40 @@ def patch_index(html, items):
     return html
 
 
+NAV_CSS = """<style>
+.hubbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:13px;color:#9499a0;margin:-30px 0 34px;letter-spacing:.1px}
+.hubbar a{color:#61666d;text-decoration:none;border-bottom:1px solid transparent;padding-bottom:1px;transition:color .15s,border-color .15s}
+.hubbar a:hover{color:#18191c;border-bottom-color:#c9ced6}
+.hubbar .hubsep{color:#d6dae0}
+.wrap code{word-break:break-all}
+@media (max-width:600px){.hubbar{margin:-18px 0 24px;font-size:12.5px;gap:7px}}
+</style>"""
+
+
+def nav_html(name):
+    """单个工具的安装页顶部导航：回总入口 + 带工具名的反馈入口。"""
+    idea = REPO_URL + "/issues/new?template=idea.yml&title=" + quote("[需求] " + name, safe="")
+    bug = REPO_URL + "/issues/new?template=bug.yml&title=" + quote("[Bug] " + name, safe="")
+    return ('<div class="hubbar">'
+            '<a href="../../index.html">← 全部工具</a>'
+            '<span class="hubsep">·</span>'
+            '<a href="%s" target="_blank" rel="noopener">提需求</a>'
+            '<span class="hubsep">·</span>'
+            '<a href="%s" target="_blank" rel="noopener">报 Bug</a>'
+            '</div>') % (idea, bug)
+
+
+def inject_nav(path, name):
+    """把导航条注入安装页。锚点固定为第一个 </head> 与 <div class="wrap">。"""
+    html = path.read_text(encoding="utf-8")
+    if 'class="hubbar"' in html:
+        return
+    html = sub1(html, "</head>", NAV_CSS + "\n</head>", "%s 的 </head>" % path.name)
+    html = sub1(html, '<div class="wrap">', '<div class="wrap">\n' + nav_html(name),
+                "%s 的 .wrap" % path.name)
+    path.write_text(html, encoding="utf-8")
+
+
 def copy_install_pages(items):
     tools_dir = OUT / "tools"
     if tools_dir.exists():
@@ -156,7 +191,9 @@ def copy_install_pages(items):
     for t in items:
         dst_dir = tools_dir / t["id"]
         dst_dir.mkdir(parents=True)
-        shutil.copy2(TOOLS_SRC / t["id"] / t["install"], dst_dir / t["install"])
+        dst = dst_dir / t["install"]
+        shutil.copy2(TOOLS_SRC / t["id"] / t["install"], dst)
+        inject_nav(dst, t["name"])
 
 
 def write_readme(items):
@@ -202,7 +239,7 @@ def main():
     print("排除 %d 个：%s" % (len(BLOCKED), "；".join("%s（%s）" % kv for kv in BLOCKED.items())))
     print("产物：%s" % OUT)
     for f in sorted(OUT.rglob("*")):
-        if f.is_file():
+        if f.is_file() and ".git" not in f.parts:
             print("  %-46s %6.1f KB" % (f.relative_to(OUT), f.stat().st_size / 1024))
     if leaked:
         print("⚠ 产物中出现内网字样，发布前请核对：")
