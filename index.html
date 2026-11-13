@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>书签工具 · 跑在网页里的实用小工具</title>
+<style>
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{margin:0;background:#f6f8fb;color:#1f2329;
+    font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif}
+  a{text-decoration:none;color:inherit}
+  button,input{font:inherit}
+  .wrap{max-width:1160px;margin:0 auto;padding:48px 24px 72px}
+
+  .hero{margin-bottom:24px}
+  .badge{display:inline-block;font-size:12px;color:#2563eb;background:#eef4ff;
+    padding:4px 11px;border-radius:10px;margin-bottom:14px;letter-spacing:.3px}
+  h1{margin:0 0 10px;font-size:33px;font-weight:680;letter-spacing:-.8px;line-height:1.25}
+  .sub{margin:0;color:#6b7280;font-size:15px;max-width:720px}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+  .stat{background:#fff;border:1px solid #e6eaf0;border-radius:10px;padding:8px 14px;font-size:13px;color:#4b5563}
+  .stat b{color:#1f2329;font-size:15px;font-weight:650;margin-right:5px;font-variant-numeric:tabular-nums}
+  .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .links a{font-size:13.5px;color:#2563eb;font-weight:550}
+  .links a:hover{text-decoration:underline}
+  .links .sep{color:#d6dce6}
+
+  .toolbar{background:#fff;border:1px solid #e6eaf0;border-radius:14px;padding:18px 20px;margin:26px 0 24px}
+  .trow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .trow + .trow{margin-top:14px;padding-top:14px;border-top:1px solid #f0f2f5}
+  .lb{font-size:12.5px;color:#8a9099;flex:0 0 auto;min-width:34px}
+  #q{flex:1 1 240px;min-width:200px;border:1px solid #dfe3ea;border-radius:9px;
+    padding:9px 13px;font-size:14px;color:#1f2329;outline:none;background:#fbfcfd;transition:.15s}
+  #q:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+  .seg{display:inline-flex;background:#f3f5f8;border:1px solid #e8ebf0;border-radius:9px;padding:3px;gap:2px;flex-wrap:wrap}
+  .seg button{border:0;background:transparent;color:#6b7280;border-radius:7px;
+    padding:6px 12px;font-size:13px;cursor:pointer;transition:.14s;white-space:nowrap}
+  .seg button:hover{color:#1f2329}
+  .seg button.on{background:#fff;color:#1f2329;font-weight:600;box-shadow:0 1px 4px rgba(31,35,41,.1)}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;flex:1}
+  .chip{border:1px solid #e6eaf0;background:#f8f9fb;color:#6b7280;border-radius:7px;
+    padding:4px 10px;font-size:12.5px;cursor:pointer;transition:.14s;white-space:nowrap}
+  .chip:hover{border-color:#c9d2e0;color:#1f2329}
+  .chip.on{background:#eef4ff;border-color:#2563eb;color:#1d4ed8;font-weight:600}
+  .clr{border:0;background:transparent;color:#8a9099;font-size:12.5px;cursor:pointer;padding:4px 6px}
+  .clr:hover{color:#2563eb}
+  .count{font-size:12.5px;color:#8a9099}
+  .count b{color:#1f2329;font-weight:650}
+  .kbd{font:11.5px ui-monospace,Menlo,monospace;background:#f2f3f5;border:1px solid #e3e6ea;
+    border-radius:4px;padding:1px 5px;color:#6b7280;margin-left:6px}
+
+  .group{margin-bottom:30px}
+  .ghead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px;
+    padding-left:12px;border-left:4px solid var(--gc,#2563eb)}
+  .ghead h2{margin:0;font-size:17px;font-weight:650;letter-spacing:-.2px}
+  .ghead .n{font-size:12.5px;color:#9aa0a8}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .card{background:#fff;border:1px solid #e6eaf0;border-radius:14px;padding:20px 20px 17px;
+    display:flex;flex-direction:column;min-height:238px;transition:.16s;--c:#2563eb}
+  .card:hover{border-color:#d6dce6;box-shadow:0 8px 26px rgba(31,35,41,.07);transform:translateY(-2px)}
+  .top{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--c);flex:0 0 auto}
+  .top h3{margin:0;font-size:16px;font-weight:650;letter-spacing:-.2px;flex:1}
+  .sitepill{font-size:11.5px;color:var(--c);background:#f6f7f9;
+    border-radius:6px;padding:2px 8px;white-space:nowrap;font-weight:550}
+  .tagline{margin:0 0 9px;font-size:13px;color:#4b5563;font-weight:550}
+  .desc{margin:0 0 12px;color:#7b828c;font-size:13.2px;line-height:1.7;flex:1}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .tag{font-size:11.5px;color:#6b7280;background:#f5f6f8;border:1px solid #edeff2;
+    border-radius:6px;padding:2px 8px;cursor:pointer;white-space:nowrap;transition:.14s}
+  .tag:hover{border-color:#2563eb;color:#2563eb}
+  .meta-line{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:#9aa0a8;margin-bottom:13px}
+  .acts{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .go{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--c);color:var(--c);
+    background:#fff;border-radius:9px;padding:8px 13px;font-size:13px;font-weight:600;transition:.15s}
+  .go:hover{background:var(--c);color:#fff}
+  .know{font-size:12.5px;color:#8a9099}
+  .know:hover{color:#2563eb;text-decoration:underline}
+
+  .tbl{width:100%;border-collapse:separate;border-spacing:0;background:#fff;
+    border:1px solid #e6eaf0;border-radius:12px;overflow:hidden;font-size:13px}
+  .tbl th{text-align:left;background:#f8f9fb;color:#8a9099;font-weight:600;font-size:12px;
+    padding:11px 14px;border-bottom:1px solid #e9ecf1;white-space:nowrap}
+  .tbl td{padding:12px 14px;border-bottom:1px solid #f1f2f5;vertical-align:top;color:#4b5563}
+  .tbl tr:last-child td{border-bottom:0}
+  .tbl tr:hover td{background:#fbfcfd}
+  .tbl .nm{font-weight:600;color:#1f2329}
+  .tbl .nm small{display:block;font-weight:400;color:#9aa0a8;font-size:11.5px;margin-top:2px}
+  .tbl .tag{padding:1px 7px;font-size:11px}
+  .tbl a.go{padding:5px 10px;font-size:12px}
+  .tbl .sdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+
+  .empty{text-align:center;padding:56px 20px;color:#9aa0a8;background:#fff;
+    border:1px dashed #dfe3ea;border-radius:14px}
+  .empty b{display:block;color:#4b5563;font-size:15px;margin-bottom:6px}
+
+  .rules{margin-top:38px;background:#fff;border:1px solid #e6eaf0;border-radius:14px;padding:22px}
+  .rules h2{margin:0 0 5px;font-size:16px;font-weight:650}
+  .rules .rsub{margin:0 0 16px;color:#8a9099;font-size:13px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px}
+  .rule{border:1px solid #eaecf0;border-radius:10px;padding:13px 15px;background:#fbfcfd}
+  .rule .k{font-size:12px;color:#8a9099;margin-bottom:4px}
+  .rule .v{font-size:13.2px;color:#1f2329;line-height:1.65}
+  .rule code{font:12.5px ui-monospace,Menlo,monospace;background:#f1f2f5;
+    padding:1px 5px;border-radius:4px;color:#374151}
+
+  .foot{margin-top:30px;padding-top:18px;border-top:1px solid #e6eaf0;
+    color:#9aa0a8;font-size:12.5px;line-height:1.9}
+  .foot b{color:#6b7280;font-weight:600}
+  .foot code{font:12px ui-monospace,Menlo,monospace;background:#f1f2f5;padding:1px 5px;border-radius:4px}
+  @media(max-width:700px){
+    .wrap{padding:32px 15px 52px}
+    h1{font-size:26px}
+    .grid{grid-template-columns:1fr}
+    .card{min-height:0}
+    .tbl{display:block;overflow-x:auto;white-space:nowrap}
+    .lb{min-width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="badge">纯前端 · 零后端 · cookie 不出本机</span>
+    <h1>书签工具</h1>
+    <p class="sub">一批跑在目标站点页面里的小工具，靠你自己的登录态读数据。装上书签、点一下就出面板，不装扩展、不起服务、不上传任何东西。</p>
+    <div class="stats" id="stats"></div>
+    <div class="links">
+      <a href="https://github.com/xzk497404080/bookmarklet-hub/issues/new/choose" target="_blank" rel="noopener">提需求 / 报 Bug →</a>
+<span class="sep">·</span>
+      <a href="https://github.com/xzk497404080/bookmarklet-hub" target="_blank" rel="noopener">GitHub 仓库</a>
+<span class="sep">·</span>
+      <a href="README.md">使用说明</a>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="trow">
+      <input id="q" type="search" placeholder="搜名称 / 说明 / 标签 / 取数方式…" autocomplete="off">
+      <span class="lb">分组</span>
+      <div class="seg" id="dim"></div>
+      <span class="lb">视图</span>
+      <div class="seg" id="view">
+        <button data-v="card" class="on">卡片</button>
+        <button data-v="table">表格</button>
+      </div>
+    </div>
+    <div class="trow">
+      <span class="lb">标签</span>
+      <div class="chips" id="tagbar"></div>
+      <button class="clr" id="clr">清除筛选</button>
+    </div>
+    <div class="trow">
+      <span class="count" id="count"></span>
+      <span class="kbd">按 / 聚焦搜索</span>
+    </div>
+  </div>
+
+  <div id="result"></div>
+
+  <section class="rules">
+    <h2>它是什么，以及边界在哪</h2>
+    <p class="rsub">书签工具就是一段存在书签栏里的 JavaScript，不是扩展，也不装东西</p>
+    <div class="rgrid">
+      <div class="rule"><div class="k">代码全可见</div><div class="v">没有压缩混淆的黑箱，装之前可以先读一遍，觉得不对就不装</div></div>
+      <div class="rule"><div class="k">数据不出本机</div><div class="v">不经过任何服务器，cookie 只在你自己浏览器里用，作者看不到你的数据</div></div>
+      <div class="rule"><div class="k">随时能删</div><div class="v">删掉书签就什么都没了，不留后台进程、不改站点配置</div></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <b>怎么装</b>：打开任意工具的安装页，按住彩色按钮拖到书签栏（<code>⌘⇧B</code> / <code>Ctrl+Shift+B</code> 调出）。<br>
+    <b>装不上</b>：点「复制代码，手动新建书签」，把内容粘到书签的地址栏里。手机端只能用这个办法。<br>
+    <b>有问题</b>：<a href="https://github.com/xzk497404080/bookmarklet-hub/issues/new/choose" target="_blank" rel="noopener">去 GitHub 提需求或报 Bug</a>，说清楚你在哪个站、点了什么、期待什么。按用途分组时，一个工具可能出现在多个分组里。
+  </div>
+
+</div>
+
+<!-- TOOLS_DATA_START -->
+<script id="tool-data" type="application/json">
+[
+  {
+    "id": "bili-follow-tool",
+    "name": "B 站关注时间",
+    "tagline": "查你是什么时候关注某个 UP 的",
+    "desc": "读关注列表里的真实时间戳，按年分布、按时排序；在 UP 主页点书签还能直接定位到他。",
+    "install": "bili-follow-time.html",
+    "site": "bilibili",
+    "siteLabel": "B 站",
+    "purpose": [
+      "数据导出",
+      "统计分析"
+    ],
+    "source": "跨域接口",
+    "storage": "无",
+    "tags": [
+      "关注时间",
+      "年份分布",
+      "互关",
+      "CSV",
+      "排序筛选"
+    ],
+    "color": "#fb7299",
+    "status": "可用"
+  },
+  {
+    "id": "douyin-history-tool",
+    "name": "抖音观看历史分析",
+    "tagline": "一路滚到底，再测你是什么人",
+    "desc": "先自动滚到滚不动（回顶部逐屏下滑、到底反复等加载、连续几次不出新内容才停），把这次能拿到的记录全收下，再按关键词归到 28 类，算出你的「人格称号」（老色批 / 科技范 / 缅A老铁…）、刷得最多的种类，以及「刷得多」和「真停得久」之间的差距。附带时间节律、榜单与明细。",
+    "install": "douyin-history.html",
+    "site": "douyin",
+    "siteLabel": "抖音",
+    "purpose": [
+      "统计分析",
+      "采集累积",
+      "数据导出"
+    ],
+    "source": "DOM 滚动",
+    "storage": "localStorage",
+    "tags": [
+      "观看历史",
+      "人格画像",
+      "内容分类",
+      "停留偏好",
+      "滚到底",
+      "时间节律",
+      "本地累积",
+      "CSV"
+    ],
+    "color": "#fe2c55",
+    "status": "可用"
+  },
+  {
+    "id": "douyin-need-tool",
+    "name": "抖音图文 · 需求挖掘台",
+    "tagline": "从评论问句里聚出候选需求",
+    "desc": "筛出图文帖，把评论里的问句聚成候选需求，粗 / 细两档粒度可切。只拦截页面自己发的请求，带示例预览和回归测试。",
+    "install": "douyin-need.html",
+    "site": "douyin",
+    "siteLabel": "抖音",
+    "purpose": [
+      "内容挖掘",
+      "采集累积",
+      "数据导出"
+    ],
+    "source": "拦截响应",
+    "storage": "localStorage",
+    "tags": [
+      "图文帖",
+      "评论问句",
+      "需求候选",
+      "意图归并",
+      "回归测试",
+      "示例预览"
+    ],
+    "color": "#fe2c55",
+    "status": "可用"
+  },
+  {
+    "id": "tzx-temp-trend-tool",
+    "name": "投资科学 · 板块温度变化榜",
+    "tagline": "今天升降几度、连着升降几天",
+    "desc": "在板块热度页叠一层：每个板块今日温度变化、连续升/降温天数、5/10 日累计，可排序筛选导 CSV。逐日拼温度序列自己算连续天数，节假日自动跳过。",
+    "install": "tzx-temp-trend.html",
+    "site": "touzikexue",
+    "siteLabel": "投资科学",
+    "purpose": [
+      "看盘辅助",
+      "统计分析",
+      "数据导出"
+    ],
+    "source": "同源接口",
+    "storage": "无",
+    "tags": [
+      "板块热度",
+      "温度变化",
+      "连续天数",
+      "行业轮动",
+      "概念板块",
+      "CSV 导出"
+    ],
+    "color": "#d93025",
+    "status": "可用"
+  }
+]
+</script>
+<!-- TOOLS_DATA_END -->
+
+<script>
+(function () {
+  'use strict';
+  var TOOLS = JSON.parse(document.getElementById('tool-data').textContent);
+  var DIMS = [
+    { key: 'site',    label: '站点',   order: ['B 站', '抖音', '投资科学'] },
+    { key: 'purpose', label: '用途',   order: ['数据导出', '统计分析', '采集累积', '内容挖掘'] },
+    { key: 'source',  label: '取数',   order: [] },
+    { key: 'storage', label: '存储',   order: [] },
+    { key: 'none',    label: '不分组', order: [] }
+  ];
+  var state = { dim: 'site', view: 'card', q: '', tag: '' };
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function installPath(t) { return 'tools/' + t.id + '/' + t.install; }
+  function hay(t) {
+    return [t.name, t.tagline, t.desc, t.siteLabel, t.source, t.storage]
+      .concat(t.purpose, t.tags).join(' ').toLowerCase();
+  }
+  function match(t) {
+    if (state.tag && t.tags.indexOf(state.tag) < 0) return false;
+    if (state.q && hay(t).indexOf(state.q) < 0) return false;
+    return true;
+  }
+  function keysOf(t, dim) {
+    if (dim === 'site') return [t.siteLabel];
+    if (dim === 'purpose') return t.purpose;
+    if (dim === 'source') return [t.source];
+    if (dim === 'storage') return [t.storage];
+    return ['全部工具'];
+  }
+  function group(dim) {
+    var cfg = DIMS.filter(function (d) { return d.key === dim; })[0];
+    var m = new Map();
+    TOOLS.filter(match).forEach(function (t) {
+      keysOf(t, dim).forEach(function (k) {
+        if (!m.has(k)) m.set(k, []);
+        m.get(k).push(t);
+      });
+    });
+    var keys = Array.from(m.keys()).sort(function (a, b) {
+      var ia = cfg.order.indexOf(a), ib = cfg.order.indexOf(b);
+      if (ia >= 0 && ib >= 0) return ia - ib;
+      if (ia >= 0) return -1;
+      if (ib >= 0) return 1;
+      return a.localeCompare(b, 'zh-CN');
+    });
+    return keys.map(function (k) { return { key: k, items: m.get(k) }; });
+  }
+  function tagsHtml(t) {
+    return t.tags.map(function (x) {
+      return '<button class="tag" data-tag="' + esc(x) + '">' + esc(x) + '</button>';
+    }).join('');
+  }
+  function cardHtml(t) {
+    return '<div class="card" style="--c:' + esc(t.color) + '">' +
+      '<div class="top"><span class="dot"></span><h3>' + esc(t.name) + '</h3>' +
+        '<span class="sitepill">' + esc(t.siteLabel) + '</span></div>' +
+      '<p class="tagline">' + esc(t.tagline) + '</p>' +
+      '<p class="desc">' + esc(t.desc) + '</p>' +
+      '<div class="tags">' + tagsHtml(t) + '</div>' +
+      '<div class="meta-line"><span>取数 · ' + esc(t.source) + '</span>' +
+        '<span>存储 · ' + esc(t.storage) + '</span>' +
+        '<span>用途 · ' + esc(t.purpose.join(' / ')) + '</span></div>' +
+      '<div class="acts"><a class="go" href="' + esc(installPath(t)) + '">打开安装页 →</a>' +
+        '</div>' +
+      '</div>';
+  }
+  function tableHtml(groups) {
+    var rows = [];
+    groups.forEach(function (g) {
+      g.items.forEach(function (t) {
+        rows.push('<tr>' +
+          '<td class="nm">' + esc(t.name) + '<small>' + esc(g.key === '全部工具' ? t.tagline : g.key + ' · ' + t.tagline) + '</small></td>' +
+          '<td><span class="sdot" style="background:' + esc(t.color) + '"></span>' + esc(t.siteLabel) + '</td>' +
+          '<td>' + esc(t.purpose.join(' / ')) + '</td>' +
+          '<td>' + esc(t.source) + '</td>' +
+          '<td>' + esc(t.storage) + '</td>' +
+          '<td><div class="tags">' + tagsHtml(t) + '</div></td>' +
+          '<td><a class="go" style="--c:' + esc(t.color) + '" href="' + esc(installPath(t)) + '">安装页</a></td>' +
+          '</tr>');
+      });
+    });
+    return '<table class="tbl"><thead><tr><th>工具</th><th>站点</th><th>用途</th>' +
+      '<th>取数</th><th>存储</th><th>标签</th><th>安装页</th></tr></thead>' +
+      '<tbody>' + rows.join('') + '</tbody></table>';
+  }
+  function render() {
+    var list = TOOLS.filter(match);
+    var groups = group(state.view === 'table' ? 'none' : state.dim);
+    var out = document.getElementById('result');
+    if (!list.length) {
+      out.innerHTML = '<div class="empty"><b>没有匹配的工具</b>换个关键词，或点「清除筛选」</div>';
+    } else if (state.view === 'table') {
+      out.innerHTML = tableHtml(groups);
+    } else {
+      out.innerHTML = groups.map(function (g) {
+        var c = g.items[0] ? g.items[0].color : '#2563eb';
+        return '<section class="group" style="--gc:' + esc(c) + '">' +
+          '<div class="ghead"><h2>' + esc(g.key) + '</h2><span class="n">' +
+          g.items.length + ' 个工具</span></div>' +
+          '<div class="grid">' + g.items.map(cardHtml).join('') + '</div></section>';
+      }).join('');
+    }
+    var cfg = DIMS.filter(function (d) { return d.key === state.dim; })[0];
+    var mode = state.view === 'table' ? '表格视图 · 平铺'
+      : state.dim === 'none' ? '平铺展示'
+      : '按<b>' + esc(cfg.label) + '</b>分组';
+    document.getElementById('count').innerHTML = '显示 <b>' + list.length + '</b> / ' + TOOLS.length +
+      ' 个工具 · ' + mode + (state.tag ? ' · 标签：<b>' + esc(state.tag) + '</b>' : '');
+    Array.prototype.forEach.call(document.querySelectorAll('#dim button'), function (b) {
+      b.classList.toggle('on', b.dataset.d === state.dim);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#tagbar .chip'), function (b) {
+      b.classList.toggle('on', b.dataset.tag === state.tag);
+    });
+  }
+  function init() {
+    var dims = document.getElementById('dim');
+    dims.innerHTML = DIMS.map(function (d) {
+      return '<button data-d="' + d.key + '">' + d.label + '</button>';
+    }).join('');
+    var tags = [];
+    TOOLS.forEach(function (t) { t.tags.forEach(function (x) { if (tags.indexOf(x) < 0) tags.push(x); }); });
+    tags.sort(function (a, b) { return a.localeCompare(b, 'zh-CN'); });
+    document.getElementById('tagbar').innerHTML = tags.map(function (x) {
+      return '<button class="chip" data-tag="' + esc(x) + '">' + esc(x) + '</button>';
+    }).join('');
+    document.getElementById('stats').innerHTML =
+      '<div class="stat"><b>' + TOOLS.length + '</b> 个工具</div>' +
+      '<div class="stat"><b>' + new Set(TOOLS.map(function (t) { return t.site; })).size + '</b> 个站点</div>' +
+      '<div class="stat"><b>' + new Set(TOOLS.map(function (t) { return t.source; })).size + '</b> 种取数方式</div>' +
+      '<div class="stat"><b>' + tags.length + '</b> 个标签</div>' +
+      '<div class="stat"><b>' + DIMS.length + '</b> 种分类方式</div>';
+
+    dims.addEventListener('click', function (e) {
+      if (e.target.dataset.d) { state.dim = e.target.dataset.d; render(); }
+    });
+    document.getElementById('view').addEventListener('click', function (e) {
+      if (!e.target.dataset.v) return;
+      state.view = e.target.dataset.v;
+      Array.prototype.forEach.call(this.querySelectorAll('button'), function (b) {
+        b.classList.toggle('on', b.dataset.v === state.view);
+      });
+      render();
+    });
+    document.getElementById('tagbar').addEventListener('click', function (e) {
+      if (!e.target.dataset.tag) return;
+      var t = e.target.dataset.tag;
+      state.tag = (state.tag === t) ? '' : t;
+      render();
+    });
+    document.getElementById('result').addEventListener('click', function (e) {
+      if (!e.target.dataset.tag) return;
+      var t = e.target.dataset.tag;
+      state.tag = (state.tag === t) ? '' : t;
+      render();
+    });
+    document.getElementById('clr').addEventListener('click', function () {
+      state.q = ''; state.tag = '';
+      document.getElementById('q').value = '';
+      render();
+    });
+    document.getElementById('q').addEventListener('input', function (e) {
+      state.q = e.target.value.trim().toLowerCase();
+      render();
+    });
+    document.addEventListener('keydown', function (e) {
+      var typing = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+      if (e.key === '/' && !typing) { e.preventDefault(); document.getElementById('q').focus(); }
+      if (e.key === 'Escape' && typing) {
+        document.getElementById('q').value = ''; state.q = '';
+        document.activeElement.blur(); render();
+      }
+    });
+    render();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
