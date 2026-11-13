@@ -55,9 +55,18 @@
   @media (max-width:820px){.grid,.steps{grid-template-columns:1fr 1fr}}
   @media (max-width:560px){.grid,.steps{grid-template-columns:1fr}h1{font-size:24px}.wrap{padding:30px 16px 60px}}
 </style>
+<style>
+.hubbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:13px;color:#9499a0;margin:-30px 0 34px;letter-spacing:.1px}
+.hubbar a{color:#61666d;text-decoration:none;border-bottom:1px solid transparent;padding-bottom:1px;transition:color .15s,border-color .15s}
+.hubbar a:hover{color:#18191c;border-bottom-color:#c9ced6}
+.hubbar .hubsep{color:#d6dae0}
+.wrap code{word-break:break-all}
+@media (max-width:600px){.hubbar{margin:-18px 0 24px;font-size:12.5px;gap:7px}}
+</style>
 </head>
 <body>
 <div class="wrap">
+<div class="hubbar"><a href="../../index.html">← 全部工具</a><span class="hubsep">·</span><a href="https://github.com/xzk497404080/bookmarklet-hub/issues/new?template=idea.yml&title=%5B%E9%9C%80%E6%B1%82%5D%20%E6%8A%95%E8%B5%84%E7%A7%91%E5%AD%A6%20%C2%B7%20%E6%9D%BF%E5%9D%97%E6%B8%A9%E5%BA%A6%E5%8F%98%E5%8C%96%E6%A6%9C" target="_blank" rel="noopener">提需求</a><span class="hubsep">·</span><a href="https://github.com/xzk497404080/bookmarklet-hub/issues/new?template=bug.yml&title=%5BBug%5D%20%E6%8A%95%E8%B5%84%E7%A7%91%E5%AD%A6%20%C2%B7%20%E6%9D%BF%E5%9D%97%E6%B8%A9%E5%BA%A6%E5%8F%98%E5%8C%96%E6%A6%9C" target="_blank" rel="noopener">报 Bug</a></div>
   <span class="badge">书签工具 · 无需安装 · 纯前端</span>
   <h1>板块温度变化榜</h1>
   <p class="sub">在投资科学的板块热度页上叠一层：每个板块<span class="up">今天升/降温多少</span>、<span class="down">连续升/降温几天</span>，可排序、可筛选、可导 CSV。</p>
