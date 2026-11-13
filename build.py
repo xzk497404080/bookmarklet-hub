@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """从本地源工作区生成可公网发布的静态站点。
 
-源：~/OPC！/书签工具  （只读，不改动任何源文件）
+源：../（即 书签工具/，只读，不改动任何源文件）
 出：本目录（index.html + tools/），可直接 git push 到 GitHub Pages
 
 用法：python3 build.py
@@ -16,7 +16,7 @@ import sys
 from urllib.parse import quote
 
 OUT = pathlib.Path(__file__).resolve().parent
-SRC = pathlib.Path(os.environ.get("SRC_HOME", "~/OPC！/书签工具")).expanduser()
+SRC = pathlib.Path(os.environ.get("SRC_HOME", OUT.parent)).expanduser()
 TOOLS_SRC = SRC / "tools"
 
 GH_USER = "xzk497404080"
@@ -32,6 +32,7 @@ WHITELIST = [
     "douyin-history-tool",
     "douyin-need-tool",
     "tzx-temp-trend-tool",
+    "svg-gallery-tool",
 ]
 BLOCKED = {
     "oa-worktime-tool": "硬编码 imgo.tv 与 /Hr/SignRecord 接口，属公司内网系统",
@@ -39,6 +40,14 @@ BLOCKED = {
 
 REQUIRED = ["id", "name", "tagline", "desc", "install", "site", "siteLabel",
             "purpose", "source", "storage", "tags", "color", "status"]
+
+# 发布前脱敏自检词表：公司/内网域名、内部系统名、本机路径与账号痕迹。
+# 命中即构建失败（退出码 2），必须先把内容从源里清掉再发。
+SENSITIVE_WORDS = [
+    "imgo.tv", "hunantv", "mgtv", "内网", "SignRecord",
+    "luke995", "xuzikun", "/Users/", "127.0.0.1", "localhost",
+]
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 
 def die(msg):
@@ -87,11 +96,15 @@ def patch_index(html, items):
                   re.escape("<!-- TOOLS_DATA_END -->"),
                   lambda _m: block, html, count=1)
 
-    # 2. 站点分组里去掉「内网 OA」
+    # 2. 站点分组里去掉「内网 OA」，并把不限站点的工具排到末尾
     html = sub1(html,
                 "order: ['B 站', '抖音', '内网 OA']",
-                "order: ['B 站', '抖音', '投资科学']",
+                "order: ['B 站', '抖音', '投资科学', '任意页面']",
                 "分组顺序")
+    html = sub1(html,
+                "order: ['数据导出', '统计分析', '采集累积', '内容挖掘']",
+                "order: ['数据导出', '统计分析', '素材采集', '采集累积', '内容挖掘']",
+                "用途顺序")
 
     # 3. 顶部链接：内部开发文档 → 对外入口
     links_new = ['    <div class="links">',
@@ -227,13 +240,19 @@ def main():
     write_readme(items)
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
 
-    # 扫一遍产物里有没有漏网的内网域名
+    # 发布前脱敏自检：内网域名 / 公司标识 / 本机痕迹 / 邮箱
     leaked = []
-    for f in OUT.rglob("*.html"):
+    for f in OUT.rglob("*"):
+        if not f.is_file() or ".git" in f.parts:
+            continue
+        if f.suffix not in (".html", ".md"):
+            continue
         text = f.read_text(encoding="utf-8", errors="ignore")
-        for pat in ("imgo.tv", "hunantv", "mgtv.com", "内网 OA"):
-            if pat in text:
+        for pat in SENSITIVE_WORDS:
+            if pat.lower() in text.lower():
                 leaked.append("%s → %s" % (f.relative_to(OUT), pat))
+        for m in EMAIL_RE.findall(text):
+            leaked.append("%s → 邮箱 %s" % (f.relative_to(OUT), m))
 
     print("工具 %d 个：%s" % (len(items), "、".join(t["name"] for t in items)))
     print("排除 %d 个：%s" % (len(BLOCKED), "；".join("%s（%s）" % kv for kv in BLOCKED.items())))
@@ -242,11 +261,12 @@ def main():
         if f.is_file() and ".git" not in f.parts:
             print("  %-46s %6.1f KB" % (f.relative_to(OUT), f.stat().st_size / 1024))
     if leaked:
-        print("⚠ 产物中出现内网字样，发布前请核对：")
-        for x in leaked:
+        print("⚠ 脱敏检查未通过，发布前请逐条核对：")
+        for x in sorted(set(leaked)):
             print("    " + x)
+        sys.exit(2)
     else:
-        print("✓ 敏感词扫描通过（无内网域名）")
+        print("✓ 脱敏检查通过（无内网域名 / 本机路径 / 邮箱）")
 
 
 if __name__ == "__main__":

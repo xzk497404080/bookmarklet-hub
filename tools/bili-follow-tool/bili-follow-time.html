@@ -19,7 +19,16 @@ body{background:#f7f8fa;color:#18191c;font:15px/1.7 -apple-system,BlinkMacSystem
 #bm{display:inline-flex;align-items:center;gap:9px;background:#fb7299;color:#fff;text-decoration:none;padding:13px 26px;border-radius:10px;font-size:15px;font-weight:600;box-shadow:0 6px 18px rgba(251,114,153,.32);transition:transform .15s,box-shadow .15s;cursor:grab}
 #bm:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(251,114,153,.38)}
 #bm:active{cursor:grabbing}
-#bm .ico{font-size:16px}
+#bm::before{content:"🔖";font-size:16px}
+  /* 按钮文字即书签名，轻微跳动提示从这里拖 */
+  @keyframes bmBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  @keyframes tipBob{0%,100%{transform:translateY(0);opacity:.72}50%{transform:translateY(-3px);opacity:1}}
+  #bm{animation:bmBob 2.4s ease-in-out infinite}
+  #bm:hover,#bm:active{animation:none}
+  .dragTip{display:inline-flex;align-items:center;color:#8a9099;font-size:12.5px;white-space:nowrap;
+    animation:tipBob 2.4s ease-in-out infinite;user-select:none}
+  @media (prefers-reduced-motion:reduce){#bm,.dragTip{animation:none}}
+
 .btn2{border:1px solid #e3e5e7;background:#fff;color:#18191c;padding:13px 20px;border-radius:10px;font-size:14px;cursor:pointer;font-family:inherit;transition:background .15s}
 .btn2:hover{background:#f6f7f8}
 .hint{color:#9499a0;font-size:12.5px;margin-top:14px;line-height:1.7}
@@ -71,7 +80,8 @@ pre{background:#18191c;color:#e8e9eb;border-radius:10px;padding:16px;overflow:au
     <h2>安装</h2>
     <div class="sub">装一次，以后在 B 站任何页面点一下就能用</div>
     <div class="install">
-      <a id="bm" href="#" draggable="true"><span class="ico">🔖</span>B站关注时间</a>
+      <a id="bm" href="#" draggable="true" title="B站关注时间">B站关注时间</a>
+      <span class="dragTip">↑ 按住拖到书签栏</span>
       <button class="btn2" id="copy">复制代码，手动新建书签</button>
     </div>
     <p class="hint">按住左边这个粉色按钮，拖到浏览器地址栏下方的<b>书签栏</b>上松手，书签名字就是「B站关注时间」。看不到书签栏？按 <code>⌘⇧B</code>（Windows 为 <code>Ctrl+Shift+B</code>）调出来。</p>
