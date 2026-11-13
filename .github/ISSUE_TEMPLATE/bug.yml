@@ -1,0 +1,52 @@
+name: 报 Bug
+description: 某个工具没按预期工作
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        面板没弹出来、数字不对、导出的 CSV 有问题——都算 Bug。
+        问题描述越具体，定位越快。
+  - type: dropdown
+    id: tool
+    attributes:
+      label: 哪个工具
+      options:
+        - B 站关注时间
+        - 抖音观看历史分析
+        - 抖音图文 · 需求挖掘台
+        - 投资科学 · 板块温度变化榜
+        - 站点本身（首页 / 安装页）
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: 你在哪个页面点的书签
+      placeholder: 例如 https://space.bilibili.com/123456
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: 浏览器和版本
+      placeholder: 例如 Chrome 131 / Edge 131 / Safari 18 / 火狐 133
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么
+      description: 面板没出来？一片空白？数字明显不对？有报错就把报错文字贴上来
+    validations:
+      required: true
+  - type: textarea
+    id: expect
+    attributes:
+      label: 你期待它做什么
+  - type: textarea
+    id: extra
+    attributes:
+      label: 其他补充
+      description: 截图可以直接拖到这个框里

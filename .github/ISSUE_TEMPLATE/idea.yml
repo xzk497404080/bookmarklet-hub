@@ -1,0 +1,53 @@
+name: 提需求 / 想要新工具
+description: 希望加一个工具，或者现有工具缺了什么
+title: "[需求] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        好需求的标志是**说清楚了「在哪个网站、做哪件重复劳动、现在怎么凑合」**。
+        比如「每天要在 XX 后台点 20 次导出再拼表」比「希望有个数据工具」有用得多。
+  - type: dropdown
+    id: type
+    attributes:
+      label: 这是
+      options:
+        - 想要一个全新的工具
+        - 现有工具缺个功能
+        - 现有工具用起来别扭
+    validations:
+      required: true
+  - type: input
+    id: site
+    attributes:
+      label: 涉及哪个网站
+      description: 有具体页面链接更好
+      placeholder: 例如 https://www.douyin.com/user/xxx
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你现在是怎么做的
+      description: 手工步骤是什么？一个流程大概要点多少次、花多久？
+    validations:
+      required: true
+  - type: textarea
+    id: want
+    attributes:
+      label: 你希望它替你做什么
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: 涉及哪些数据
+      description: 要抓什么字段、要不要导出 Excel、要不要留历史记录。不想填也行
+  - type: checkboxes
+    id: login
+    attributes:
+      label: 前置条件
+      options:
+        - label: 这个页面必须先登录才能看到内容
+        - label: 数据要翻很多页才能看全
