@@ -33,6 +33,7 @@ WHITELIST = [
     "douyin-need-tool",
     "tzx-temp-trend-tool",
     "svg-gallery-tool",
+    "image-compress-tool",
 ]
 BLOCKED = {
     "oa-worktime-tool": "硬编码 imgo.tv 与 /Hr/SignRecord 接口，属公司内网系统",
@@ -103,7 +104,7 @@ def patch_index(html, items):
                 "分组顺序")
     html = sub1(html,
                 "order: ['数据导出', '统计分析', '采集累积', '内容挖掘']",
-                "order: ['数据导出', '统计分析', '素材采集', '采集累积', '内容挖掘']",
+                "order: ['数据导出', '统计分析', '素材采集', '图片处理', '采集累积', '内容挖掘']",
                 "用途顺序")
 
     # 3. 顶部链接：内部开发文档 → 对外入口
