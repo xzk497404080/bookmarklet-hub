@@ -34,6 +34,7 @@ WHITELIST = [
     "tzx-temp-trend-tool",
     "svg-gallery-tool",
     "image-compress-tool",
+    "qrcode-tool",
 ]
 BLOCKED = {
     "oa-worktime-tool": "硬编码 imgo.tv 与 /Hr/SignRecord 接口，属公司内网系统",
