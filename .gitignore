@@ -1,3 +1,6 @@
 .DS_Store
 *.swp
 __pycache__/
+
+# 构建脚本含内部脱敏词表，只留本地，不上传公开仓库
+build.py
